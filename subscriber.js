@@ -37,3 +37,28 @@ websocket.onmessage = e => {
 };
 
 
+function processOffer(id, offer) {
+    streamer_id = id;
+    peerConnection = new RTCPeerConnection(RTCConfig);
+    peerConnection
+    .setRemoteDescription(offer)
+    .then(() => peerConnection.createAnswer())
+    .then(sdp => peerConnection.setLocalDescription(sdp))
+    .then(() => {
+        websocket.send("A\n" + streamer_id + "\n" + JSON.stringify(peerConnection.localDescription));
+    });
+
+    //Stream
+    peerConnection.ontrack = e => {
+        video.srcObject = e.streams[0];
+    };
+
+    //Candidate
+    peerConnection.onicecandidate = e => {
+        if (e.candidate) {
+            websocket.send("C\n" + streamer_id + "\n" + JSON.stringify(e.candidate));
+        };
+    };
+}
+
+
