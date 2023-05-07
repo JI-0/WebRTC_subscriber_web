@@ -62,3 +62,13 @@ function processOffer(id, offer) {
 }
 
 
+function processCandidate(_, candidate) {
+    peerConnection
+    .addIceCandidate(new RTCIceCandidate(candidate))
+    .catch(e => console.error(e));
+};
+
+window.onunload = window.onbeforeunload = () => {
+    peerConnection.close();
+    websocket.close();
+};
